@@ -1,0 +1,75 @@
+---
+  - hosts: lb
+    vars:
+      ansible_connection: ssh
+      ansible_user: root
+
+    tasks:
+    - name: Create gobetween directory if it does not exist
+      file:
+        path: /opt/gobetween/
+        state: directory
+        mode: '0755'
+
+    - name: Download binary
+      get_url:
+        url: https://github.com/yyyar/gobetween/releases/download/0.7.0/gobetween_0.7.0_linux_amd64.tar.gz
+        dest: /opt/gobetween/
+
+    - name: Unarchive a file that is already on the remote machine
+      unarchive:
+        src: /opt/gobetween/gobetween_0.7.0_linux_amd64.tar.gz
+        dest: /opt/gobetween/
+        remote_src: yes
+
+    - name: Ensure group "appmgr" exists
+      group:
+        name: appmgr
+        state: present
+        system: yes
+
+    - name: Add the user 'gobetween' and add to appmgr group
+      user:
+        name: gobetween
+        shell: /bin/false
+        groups: appmgr
+        append: yes
+        system: yes
+
+    - name: Template a file to /etc/systemd/system/gobetween.service
+      template:
+        src: Templates/gobetween/systemd/gobetween.service
+        dest: /etc/systemd/system/gobetween.service
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Change permisions to /opt/gobetween/
+      file:
+        path: /opt/gobetween/
+        state: directory
+        recurse: yes
+        owner: gobetween
+        group: appmgr
+
+    - name: Template configuration gobetween
+      template:
+        src: Templates/gobetween/config/gobetween.toml
+        dest: /opt/gobetween/config/gobetween.toml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Add unit to systemd and start a service
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        name: gobetween.service
+        enabled: yes
+
+    - name: create fw rule
+      firewalld:
+        port: 3000/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes

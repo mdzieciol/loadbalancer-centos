@@ -1,0 +1,23 @@
+[servers.sample]
+bind = "192.168.54.122:3000"
+protocol = "tcp"
+balance = "weight"
+
+max_connections = 10000
+client_idle_timeout = "10m"
+backend_idle_timeout = "10m"
+backend_connection_timeout = "2s"
+
+[servers.sample.discovery]
+kind = "static"
+static_list = [
+    "192.168.54.125:80 weight=5",
+    "192.168.54.126:80 weight=3",
+]
+
+[servers.sample.healthcheck]
+fails = 1
+passes = 1
+interval = "2s"
+kind = "ping"
+ping_timeout_duration = "500ms"

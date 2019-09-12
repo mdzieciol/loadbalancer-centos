@@ -1,0 +1,14 @@
+
+[Unit]
+Description=Gobetween Service
+
+[Service]
+WorkingDirectory=/opt/gobetween
+ExecStart=/opt/gobetween/gobetween -c config/gobetween.toml
+User=gobetween
+Type=simple
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

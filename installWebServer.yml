@@ -1,0 +1,36 @@
+---
+  - hosts: nodes
+    vars:
+      ansible_connection: ssh
+      ansible_user: root
+
+    - name: install epel-release
+      yum:
+        name: epel-release
+        state: latest
+
+    tasks:
+    - name: install nginx
+      yum:
+        name: nginx
+
+    - name: restart service server
+      systemd:
+        state: restarted
+        name: nginx.service
+        enabled: yes
+
+    - name: create fw rules (http)
+      firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+
+    - name: create fw rule (https)
+      firewalld:
+        service: https
+        permanent: yes
+        state: enabled
+        immediate: yes

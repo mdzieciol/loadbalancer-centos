@@ -1,0 +1,29 @@
+---
+  - hosts: lb01
+    vars:
+      ansible_connection: ssh
+      ansible_user: root
+
+    tasks:
+    - name: install epel-release
+      yum:
+        name: epel-release
+        state: latest
+
+    - name: install keepalived
+      yum:
+        name: keepalived
+
+    - name: Template configuration keepalived
+      template:
+        src: Templates/keepalived/lb01/keepalived.conf
+        dest: /etc/keepalived/keepalived.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: restart service server
+      systemd:
+        state: restarted
+        name: keepalived.service
+        enabled: yes
