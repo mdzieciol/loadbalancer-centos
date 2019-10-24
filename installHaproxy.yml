@@ -1,0 +1,44 @@
+---
+  - hosts: lb
+    vars:
+      ansible_connection: ssh
+      ansible_user: root
+
+    tasks:
+    - name: install epel-release
+      yum:
+        name: epel-release
+        state: latest
+
+    - name: install haproxy
+      yum:
+        name: haproxy
+
+    - name: Template configuration haproxy
+      template:
+        src: Templates/haproxy/haproxy.cfg
+        dest: /etc/haproxy/haproxy.cfg
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Add unit to systemd and start a service
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        name: haproxy.service
+        enabled: yes
+
+    - name: create fw rule SSH
+      firewalld:
+        port: 2222/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: create fw rule RDP
+      firewalld:
+        port: 3389/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes

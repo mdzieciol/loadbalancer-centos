@@ -1,23 +1,35 @@
-[servers.sample]
-bind = "192.168.54.122:3000"
+[servers.SSH]
+
+bind = "192.168.54.122:2222"
 protocol = "tcp"
-balance = "weight"
+balance = "roundrobin"
 
-max_connections = 10000
-client_idle_timeout = "10m"
-backend_idle_timeout = "10m"
-backend_connection_timeout = "2s"
+  [servers.SSH.discovery]
+  kind = "static"
+  static_list = [
+      "192.168.54.125 weight=1"
+  ]
 
-[servers.sample.discovery]
-kind = "static"
-static_list = [
-    "192.168.54.125:80 weight=5",
-    "192.168.54.126:80 weight=3",
-]
+[servers.RDP]
 
-[servers.sample.healthcheck]
-fails = 1
-passes = 1
-interval = "2s"
-kind = "ping"
-ping_timeout_duration = "500ms"
+bind = "192.168.54.122:3389"
+protocol = "tcp"
+balance = "leastconn"
+
+  [servers.RDP.discovery]
+  kind = "static"
+  static_list = [
+      "192.168.54.127:3389"
+  ]
+
+[servers.HTTPS]
+
+bind = "192.168.54.122:443"
+protocol = "tcp"
+balance = "roundrobin"
+
+  [servers.HTTPS.discovery]
+  kind = "static"
+  static_list = [
+      "192.168.54.125:443 weight=1"
+  ]

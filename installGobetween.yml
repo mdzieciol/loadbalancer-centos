@@ -1,3 +1,4 @@
+
 ---
   - hosts: lb
     vars:
@@ -67,9 +68,16 @@
         name: gobetween.service
         enabled: yes
 
-    - name: create fw rule
+    - name: create fw rule SSH
       firewalld:
-        port: 3000/tcp
+        port: 2222/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: create fw rule RDP
+      firewalld:
+        port: 3389/tcp
         permanent: yes
         state: enabled
         immediate: yes
